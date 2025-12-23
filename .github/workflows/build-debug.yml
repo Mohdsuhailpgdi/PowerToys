@@ -17,6 +17,16 @@ jobs:
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v1
 
+    - name: Install Windows 10 SDK (19041)
+      shell: pwsh
+      run: |
+        Write-Host "Installing Windows 10 SDK 19041 via Visual Studio Installer..."
+        & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vs_installer.exe" `
+          modify `
+          --installPath "C:\Program Files\Microsoft Visual Studio\2022\Enterprise" `
+          --add Microsoft.VisualStudio.Component.Windows10SDK.19041 `
+          --quiet --norestart --wait
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
