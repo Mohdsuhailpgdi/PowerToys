@@ -14,43 +14,6 @@ jobs:
       with:
         submodules: recursive
 
-    - name: Detect installed Windows SDK
-      shell: pwsh
-      run: |
-        Write-Host "Scanning for installed Windows 10 SDK versions..."
-        $sdkRoot = 'C:\Program Files (x86)\Windows Kits\10\Include'
-        if (-Not (Test-Path $sdkRoot)) {
-          Write-Error "Windows Kits root not found at $sdkRoot. Failing early."
-          exit 1
-        }
-
-        $sdks = Get-ChildItem -Path $sdkRoot -Directory | ForEach-Object { $_.Name }
-
-        $valid = @()
-        foreach ($s in $sdks) {
-          # Keep only characters allowed in versions, then try to parse
-          $candidate = ($s -replace '[^0-9\.]', '')
-          try {
-            if ($candidate -and $candidate -match '\d+\.\d+') {
-              $v = [version]$candidate
-              $valid += [PSCustomObject]@{ Raw = $s; Ver = $v }
-            }
-          } catch {
-            # ignore parse errors
-          }
-        }
-
-        if ($valid.Count -eq 0) {
-          Write-Error "No parseable Windows SDK versions found under $sdkRoot. Failing."
-          exit 1
-        }
-
-        $best = ($valid | Sort-Object -Property Ver -Descending)[0].Raw
-        Write-Host "Detected Windows SDK version: $best"
-
-        # Export for subsequent steps in a GitHub Actions-friendly way
-        Add-Content -Path $env:GITHUB_ENV -Value "WINDOWS_SDK_VERSION=$best"
-
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v1
 
@@ -59,17 +22,11 @@ jobs:
       with:
         dotnet-version: '9.0.x'
 
-    - name: Restore NuGet packages (nuget)
-      shell: pwsh
-      run: |
-        Write-Host "Running nuget restore for PowerToys.slnx..."
-        nuget restore PowerToys.slnx
-
     - name: Restore dotnet packages
       shell: pwsh
       run: |
         Write-Host "Running dotnet restore for PowerToys.slnx..."
-        dotnet restore PowerToys.slnx /p:WindowsTargetPlatformVersion=${{ env.WINDOWS_SDK_VERSION }}
+        dotnet restore PowerToys.slnx
 
     - name: Build Solution
-      run: msbuild PowerToys.slnx /m /restore /p:Configuration=Debug /p:Platform=x64 /p:WindowsTargetPlatformVersion=${{ env.WINDOWS_SDK_VERSION }}
+      run: msbuild PowerToys.slnx /m /restore /p:Configuration=Debug /p:Platform=x64
