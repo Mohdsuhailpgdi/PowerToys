@@ -17,14 +17,28 @@ jobs:
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v1
 
-    - name: Install Windows 10 SDK (19041)
+    - name: Install UWP + Windows 10 SDK (19041)
       shell: pwsh
       run: |
-        Write-Host "Installing Windows 10 SDK 19041 via Visual Studio Installer..."
-        & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vs_installer.exe" `
+        Write-Host "Locating Visual Studio installation..."
+        $vsPath = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" `
+          -latest `
+          -products * `
+          -requires Microsoft.Component.MSBuild `
+          -property installationPath
+
+        if (-not $vsPath) {
+          Write-Error "Visual Studio installation not found"
+          exit 1
+        }
+
+        Write-Host "Using Visual Studio at $vsPath"
+
+        & "$vsPath\Common7\IDE\vs_installer.exe" `
           modify `
-          --installPath "C:\Program Files\Microsoft Visual Studio\2022\Enterprise" `
+          --installPath "$vsPath" `
           --add Microsoft.VisualStudio.Component.Windows10SDK.19041 `
+          --add Microsoft.VisualStudio.ComponentGroup.UWP.VC `
           --quiet --norestart --wait
 
     - name: Setup .NET
