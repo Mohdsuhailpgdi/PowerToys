@@ -22,8 +22,25 @@ jobs:
       with:
         dotnet-version: '9.0.x'
 
-    - name: Install Windows SDK 10.0.26100.0
-      run: choco install windows-sdk-10.0 --version=10.0.22621.0 -y
+    - name: Detect installed Windows SDK
+      shell: pwsh
+      run: |
+        Write-Host "Scanning for installed Windows 10 SDK versions..."
+        $sdkRoot = 'C:\Program Files (x86)\Windows Kits\10\Include'
+        if (-Not (Test-Path $sdkRoot)) {
+          Write-Error "Windows Kits root not found at $sdkRoot. Failing early."
+          exit 1
+        }
+        $sdks = Get-ChildItem -Path $sdkRoot -Directory | ForEach-Object { $_.Name } | Where-Object { $_ -match '^\d+\.\d+\.\d+\.\d+$|^\d+\.\d+\.\d+$' }
+        if (-not $sdks -or $sdks.Count -eq 0) {
+          Write-Error "No Windows SDKs found under $sdkRoot. Failing."
+          exit 1
+        }
+        # Choose the highest version available
+        $parsed = $sdks | ForEach-Object { [PSCustomObject]@{Raw=$_;Ver=[version]($_ -replace '(?:\.\d+){2,}$','') } }
+        $best = ($parsed | Sort-Object -Property Ver -Descending)[0].Raw
+        Write-Host "Detected Windows SDK version: $best"
+        echo "##[set-env name=WINDOWS_SDK_VERSION]$best"
 
     - name: Build Solution
-      run: msbuild PowerToys.slnx /m /restore /p:Configuration=Debug /p:Platform=x64
+      run: msbuild PowerToys.slnx /m /restore /p:Configuration=Debug /p:Platform=x64 /p:WindowsTargetPlatformVersion=${{ env.WINDOWS_SDK_VERSION }}
