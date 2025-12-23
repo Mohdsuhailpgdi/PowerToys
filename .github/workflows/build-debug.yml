@@ -59,5 +59,17 @@ jobs:
         # Export for subsequent steps in a GitHub Actions-friendly way
         Add-Content -Path $env:GITHUB_ENV -Value "WINDOWS_SDK_VERSION=$best"
 
+    - name: Restore NuGet packages (nuget)
+      shell: pwsh
+      run: |
+        Write-Host "Running nuget restore for PowerToys.slnx..."
+        nuget restore PowerToys.slnx
+
+    - name: Restore dotnet packages
+      shell: pwsh
+      run: |
+        Write-Host "Running dotnet restore for PowerToys.slnx..."
+        dotnet restore PowerToys.slnx
+
     - name: Build Solution
       run: msbuild PowerToys.slnx /m /restore /p:Configuration=Debug /p:Platform=x64 /p:WindowsTargetPlatformVersion=${{ env.WINDOWS_SDK_VERSION }}
