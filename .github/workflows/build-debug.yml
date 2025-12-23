@@ -41,4 +41,4 @@ jobs:
         dotnet restore PowerToys.slnx
 
     - name: Build Solution
-      run: msbuild PowerToys.slnx /m /restore /p:Configuration=Debug /p:Platform=x64
+      run: msbuild PowerToys.slnx /m /restore /p:Configuration=Release /p:Platform=x64
