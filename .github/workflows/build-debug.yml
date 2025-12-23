@@ -34,7 +34,7 @@ jobs:
 
         Write-Host "Using Visual Studio at $vsPath"
 
-        & "$vsPath\Common7\IDE\vs_installer.exe" `
+        & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vs_installer.exe" `
           modify `
           --installPath "$vsPath" `
           --add Microsoft.VisualStudio.Component.Windows10SDK.19041 `
