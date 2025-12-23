@@ -22,6 +22,19 @@ jobs:
       with:
         dotnet-version: '9.0.x'
 
+    - name: Download NuGet CLI
+      shell: pwsh
+      run: |
+        Write-Host "Downloading nuget.exe..."
+        Invoke-WebRequest -Uri "https://dist.nuget.org/win-x86-commandline/latest/nuget.exe" -OutFile "$PWD\nuget.exe"
+        Write-Host "nuget.exe downloaded to $PWD\nuget.exe"
+
+    - name: Restore NuGet packages (packages.config)
+      shell: pwsh
+      run: |
+        Write-Host "Running nuget.exe restore for PowerToys.slnx..."
+        & "$PWD\nuget.exe" restore PowerToys.slnx
+
     - name: Restore dotnet packages
       shell: pwsh
       run: |
