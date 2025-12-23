@@ -1,0 +1,29 @@
+name: Build Debug (x64)
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: recursive
+
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v1
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '9.0.x'
+
+    - name: Restore NuGet packages
+      run: msbuild PowerToys.slnx /t:Restore /p:Configuration=Debug /p:Platform=x64
+
+    - name: Build Solution
+      run: msbuild PowerToys.slnx /t:Build /p:Configuration=Debug /p:Platform=x64
