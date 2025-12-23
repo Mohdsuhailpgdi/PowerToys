@@ -1,0 +1,1 @@
+- **Mouse Utils**: Added a new utility "Mouse Virtual Desktop Switcher". Easily switch between virtual desktops using your mouse wheel when hovering over the taskbar or while holding a mouse button.

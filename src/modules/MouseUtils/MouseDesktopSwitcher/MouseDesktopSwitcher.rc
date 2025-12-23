@@ -1,0 +1,8 @@
+#include "resource.h"
+#include <windows.h>
+
+STRINGTABLE
+BEGIN
+    IDS_SETTINGS_DESCRIPTION "Mouse Virtual Desktop Switcher"
+    IDS_SC_NAME "Mouse Virtual Desktop Switcher"
+END
