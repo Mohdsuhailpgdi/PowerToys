@@ -41,4 +41,4 @@ jobs:
         dotnet restore PowerToys.slnx
 
     - name: Build Solution
-      run: msbuild src\runner\runner.vcxproj /m /restore /p:Configuration=Release /p:BuildProjectReferences=false
+      run: msbuild PowerToys.slnx /m /restore /p:Configuration=Release /p:Platform=x64 /t:runner
